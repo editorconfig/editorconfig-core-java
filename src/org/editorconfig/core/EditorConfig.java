@@ -1,9 +1,6 @@
 package org.editorconfig.core;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,13 +40,15 @@ public class EditorConfig {
       while (dir != null && !root) {
         String configPath = dir + "/" + configFilename;
         if (new File(configPath).exists()) {
-          FileReader reader = new FileReader(configPath);
+          FileInputStream stream = new FileInputStream(configPath);
+          InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
           BufferedReader bufferedReader = new BufferedReader(reader);
           try {
             root = parseFile(bufferedReader, dir + "/", filePath, options);
           } finally {
             bufferedReader.close();
             reader.close();
+            stream.close();
           }
         }
         dir = new File(dir).getParent();
