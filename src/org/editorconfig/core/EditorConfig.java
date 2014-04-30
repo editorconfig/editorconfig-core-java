@@ -33,7 +33,8 @@ public class EditorConfig {
 
 
   public List<OutPair> getProperties(String filePath) throws EditorConfigException {
-    final Map<String, String> options = new LinkedHashMap<String, String>();
+    Map<String, String> oldOptions = Collections.emptyMap();
+    Map<String, String> options = new LinkedHashMap<String, String>();
     try {
       boolean root = false;
       String dir = new File(filePath).getParent();
@@ -51,16 +52,19 @@ public class EditorConfig {
             stream.close();
           }
         }
+        options.putAll(oldOptions);
+        oldOptions = options;
+        options = new LinkedHashMap<String, String>();
         dir = new File(dir).getParent();
       }
     } catch (IOException e) {
       throw new EditorConfigException(null, e);
     }
 
-    preprocessOptions(options);
+    preprocessOptions(oldOptions);
 
     final List<OutPair> result = new ArrayList<OutPair>();
-    for (Map.Entry<String, String> keyValue : options.entrySet()) {
+    for (Map.Entry<String, String> keyValue : oldOptions.entrySet()) {
       result.add(new OutPair(keyValue.getKey(), keyValue.getValue()));
     }
     return result;
