@@ -33,6 +33,7 @@ public class EditorConfig {
 
 
   public List<OutPair> getProperties(String filePath) throws EditorConfigException {
+    checkAssertions();
     Map<String, String> oldOptions = Collections.emptyMap();
     Map<String, String> options = new LinkedHashMap<String, String>();
     try {
@@ -70,6 +71,31 @@ public class EditorConfig {
     return result;
   }
 
+  private void checkAssertions() {
+    if (compareVersions(version, VERSION) > 0) {
+      throw new IllegalArgumentException("Required version is greater than the current version.");
+    }
+  }
+
+  private int compareVersions(String version1, String version2) {
+    String[] version1Components = version1.split("(\\.|-)");
+    String[] version2Components = version2.split("(\\.|-)");
+    for (int i = 0; i < 3; i++) {
+      String version1Component = version1Components[i];
+      String version2Component = version2Components[i];
+      int v1 = -1;
+      int v2 = -1;
+      try {
+        v1 = Integer.parseInt(version1Component);
+      } catch (NumberFormatException ignored) {}
+      try {
+        v2 = Integer.parseInt(version2Component);
+      } catch (NumberFormatException ignored) {}
+      if (v1 != v2) return v1 - v2;
+    }
+    return 0;
+  }
+
   private void preprocessOptions(Map<String, String> options) {
     // Lowercase option value for certain options
     for (String key : new String[]{"end_of_line", "indent_style", "indent_size", "insert_final_newline",
@@ -82,8 +108,8 @@ public class EditorConfig {
 
     // Set indent_size to "tab" if indent_size is unspecified and
     // indent_style is set to "tab".
-    if ("tab".equals(options.get("indent_style")) && !options.containsKey("indent_size")) {
-      // version should be > 0.10.0
+    if ("tab".equals(options.get("indent_style")) && !options.containsKey("indent_size") &&
+        compareVersions(version, "0.10.0") >= 0) {
       options.put("indent_size", "tab");
     }
 
