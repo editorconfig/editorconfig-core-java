@@ -52,8 +52,8 @@ directory.
 
 ## License
 
-All source files of the Java binding are distributed under the PSF license. See
-LICENSE.txt for details.
+All source files of the Java binding are distributed under the Apache license. See
+LICENSE for details.
 
 Copyright (C) 2012-2013, EditorConfig Team
 
