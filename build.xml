@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
     <property name="src.dir" location="src"/>
     <property name="build.dir" location="out"/>
-    <property name="dist.target" value="all"/>
+    <property name="dist.target" value="build"/>
     <property name="editorconfig.test.dir" value="./editorconfig-core-test"/>
 
     <target name="test-submodule">
