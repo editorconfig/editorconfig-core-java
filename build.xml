@@ -46,7 +46,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
     <target name="build">
         <mkdir dir="${build.dir}/classes" />
-        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" />
+        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" debug="on"/>
         <jar destfile="lib/editorconfig-core-java.jar" manifest="${src.dir}/META-INF/MANIFEST.MF">
             <fileset dir="${build.dir}/classes" />
             <fileset dir="${src.dir}" includes="**/*.java"/>
