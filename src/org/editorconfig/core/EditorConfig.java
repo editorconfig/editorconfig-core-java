@@ -31,7 +31,6 @@ public class EditorConfig {
     this.version = version;
   }
 
-
   public List<OutPair> getProperties(String filePath) throws EditorConfigException {
     checkAssertions();
     Map<String, String> oldOptions = Collections.emptyMap();
@@ -71,9 +70,9 @@ public class EditorConfig {
     return result;
   }
 
-  private void checkAssertions() {
+  private void checkAssertions() throws VersionException {
     if (compareVersions(version, VERSION) > 0) {
-      throw new IllegalArgumentException("Required version is greater than the current version.");
+      throw new VersionException("Required version is greater than the current version.");
     }
   }
 
