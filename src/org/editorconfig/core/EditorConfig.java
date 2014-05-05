@@ -154,7 +154,7 @@ public class EditorConfig {
         value = value.equals("\"\"") ? "" : value;
         if (!inSection && "root".equals(key)) {
           root = true;
-        } else if (matchingSection && !result.containsKey(key)) {
+        } else if (matchingSection) {
           int commentPos = value.indexOf(" ;");
           commentPos = commentPos < 0 ? value.indexOf(" #") : commentPos;
           value = commentPos >= 0 ? value.substring(0, commentPos) : value;
