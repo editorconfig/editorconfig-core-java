@@ -76,7 +76,7 @@ public class EditorConfig {
     }
   }
 
-  private int compareVersions(String version1, String version2) {
+  private static int compareVersions(String version1, String version2) {
     String[] version1Components = version1.split("(\\.|-)");
     String[] version2Components = version2.split("(\\.|-)");
     for (int i = 0; i < 3; i++) {
@@ -126,7 +126,7 @@ public class EditorConfig {
     }
   }
 
-  private boolean parseFile(BufferedReader bufferedReader, String dirName, String filePath, Map<String, String> result) throws IOException, EditorConfigException {
+  private static boolean parseFile(BufferedReader bufferedReader, String dirName, String filePath, Map<String, String> result) throws IOException, EditorConfigException {
     final StringBuilder malformedLines = new StringBuilder();
     boolean root = false;
     boolean inSection = false;
@@ -170,7 +170,7 @@ public class EditorConfig {
     return root;
   }
 
-  private boolean filenameMatches(String configDirname, String pattern, String filePath) {
+  private static boolean filenameMatches(String configDirname, String pattern, String filePath) {
     pattern = pattern.replace(File.separatorChar, '/');
     pattern = pattern.replaceAll("\\\\#", "#");
     pattern = pattern.replaceAll("\\\\;", ";");
@@ -183,7 +183,7 @@ public class EditorConfig {
     return Pattern.compile(convertGlobToRegEx(pattern)).matcher(filePath).matches();
   }
 
-  private String convertGlobToRegEx(String pattern) {
+  private static String convertGlobToRegEx(String pattern) {
     int length = pattern.length();
     StringBuilder result = new StringBuilder(length);
     int i = 0;
@@ -266,7 +266,7 @@ public class EditorConfig {
     return result.toString();
   }
 
-  private String escapeToRegex(String group) {
+  private static String escapeToRegex(String group) {
     final StringBuilder builder = new StringBuilder(group.length());
     for (char c : group.toCharArray()) {
       if (c == ' ' || Character.isLetter(c) || Character.isDigit(c) || c == '_') {
