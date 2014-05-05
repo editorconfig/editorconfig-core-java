@@ -24,7 +24,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<project name="EditorConfigPlugin" default="build" basedir=".">
+<project name="EditorConfigCoreJava" default="build" basedir=".">
     <description>
         This is an ant build.xml file for building the EditorConfig Java parser
     </description>
