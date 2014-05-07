@@ -6,6 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * EditorConfig handler
+ *
  * @author Dennis.Ushakov
  */
 public class EditorConfig {
@@ -22,15 +24,36 @@ public class EditorConfig {
   private final String configFilename;
   private final String version;
 
+  /**
+   * Creates EditorConfig handler with default configuration filename (.editorconfig) and
+   * version {@link EditorConfig#VERSION}
+   */
   public EditorConfig() {
     this(".editorconfig", VERSION);
   }
 
+  /**
+   * Creates EditorConfig handler with specified configuration filename and version.
+   * Used mostly for debugging/testing.
+   * @param configFilename configuration file name to be searched for instead of .editorconfig
+   * @param version required version
+   */
   public EditorConfig(String configFilename, String version) {
     this.configFilename = configFilename;
     this.version = version;
   }
 
+  /**
+   * Parse editorconfig files corresponding to the file path given by filename, and return the parsing result.
+   *
+   * @param filePath The full path to be parsed. The path is usually the path of the file which is currently edited
+   *                 by the editor.
+   * @return The parsing result stored in a list of {@link EditorConfig.OutPair}.
+   * @throws org.editorconfig.core.ParsingException      If an {@code .editorconfig} file could not be parsed
+   * @throws org.editorconfig.core.VersionException      If version greater than actual is specified in constructor
+   * @throws org.editorconfig.core.EditorConfigException If an EditorConfig exception occurs. Usually one of
+   *                                                     {@link ParsingException} or {@link VersionException}
+   */
   public List<OutPair> getProperties(String filePath) throws EditorConfigException {
     checkAssertions();
     Map<String, String> oldOptions = Collections.emptyMap();
@@ -165,7 +188,7 @@ public class EditorConfig {
       malformedLines.append(line).append("\n");
     }
     if (malformedLines.length() > 0) {
-      throw new EditorConfigException(malformedLines.toString(), null);
+      throw new ParsingException(malformedLines.toString(), null);
     }
     return root;
   }
@@ -280,6 +303,9 @@ public class EditorConfig {
     return builder.toString();
   }
 
+  /**
+   * String-String pair to store the parsing result.
+   */
   public static class OutPair {
     private final String key;
     private final String val;

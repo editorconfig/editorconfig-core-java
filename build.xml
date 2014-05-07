@@ -53,6 +53,14 @@ POSSIBILITY OF SUCH DAMAGE.
         </jar>
     </target>
 
+    <target name="docs">
+        <javadoc sourcepath="${src.dir}" destdir="${build.dir}/javadoc" locale="en_US"
+                 windowtitle="EditorConfig Java Library API Documentation"
+                 linksource="true" nodeprecatedlist="true">
+            <link href="http://docs.oracle.com/javase/6/docs/api/"/>
+        </javadoc>
+    </target>
+
     <target name="test" depends="test-submodule">
         <exec executable="cmake">
             <arg value="."/>
@@ -62,5 +70,5 @@ POSSIBILITY OF SUCH DAMAGE.
         </exec>
     </target>
 
-    <target name="all" depends="build,test"/>
+    <target name="all" depends="build,docs,test"/>
 </project>
