@@ -21,7 +21,7 @@ First be sure that the submodule is initialized:
 
 With [Ant][]:
 
-    ant && ant doc
+    ant && ant docs
 
 The built jar file is in the `build` directory and the documentation is in the
 `doc` directory.
