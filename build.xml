@@ -70,5 +70,15 @@ POSSIBILITY OF SUCH DAMAGE.
         </exec>
     </target>
 
+    <target name="clean">
+        <delete dir="out" />
+        <delete dir="Testing" />
+        <delete dir="CMakeFiles" />
+        <delete file="CMakeCache.txt" />
+        <delete file="CTestTestfile.cmake" />
+        <delete file="cmake_install.cmake" />
+        <delete file="Makefile" />
+    </target>
+
     <target name="all" depends="build,docs,test"/>
 </project>
