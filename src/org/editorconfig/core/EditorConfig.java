@@ -21,6 +21,9 @@ public class EditorConfig {
   private static final int OPTION = 1;
   private static final int VAL = 2;
 
+  private static final Pattern OPENING_BRACES = Pattern.compile("(?:^|[^\\\\])\\{");
+  private static final Pattern CLOSING_BRACES = Pattern.compile("(?:^|[^\\\\])}");
+
   private final String configFilename;
   private final String version;
 
@@ -193,7 +196,7 @@ public class EditorConfig {
     return root;
   }
 
-  private static boolean filenameMatches(String configDirname, String pattern, String filePath) {
+  static boolean filenameMatches(String configDirname, String pattern, String filePath) {
     pattern = pattern.replace(File.separatorChar, '/');
     pattern = pattern.replaceAll("\\\\#", "#");
     pattern = pattern.replaceAll("\\\\;", ";");
@@ -203,13 +206,16 @@ public class EditorConfig {
     } else {
       pattern = "**/" + pattern;
     }
-    return Pattern.compile(convertGlobToRegEx(pattern)).matcher(filePath).matches();
+    final String regex = convertGlobToRegEx(pattern, false);
+    return Pattern.compile(regex).matcher(filePath).matches();
   }
 
-  private static String convertGlobToRegEx(String pattern) {
+  static String convertGlobToRegEx(String pattern, boolean nested) {
     int length = pattern.length();
     StringBuilder result = new StringBuilder(length);
     int i = 0;
+    int braceLevel = 0;
+    boolean matchingBraces = countAll(OPENING_BRACES, pattern) == countAll(CLOSING_BRACES, pattern);
     boolean escaped = false;
     while (i < length) {
       char current = pattern.charAt(i);
@@ -249,40 +255,44 @@ public class EditorConfig {
         }
       } else if ('{' == current) {
         int j = i;
-        final List<String> groups = new ArrayList<String>();
-        while (j < length && pattern.charAt(j) != '}') {
-          int k = j;
-          while (k < length && (",}".indexOf(pattern.charAt(k)) < 0 || escaped)) {
-            escaped = pattern.charAt(k) == '\\' && !escaped;
-            k++;
+        boolean seenComma = false;
+        while (j < length && (pattern.charAt(j) != '}' || escaped)) {
+          if (pattern.charAt(j) == ',' && !escaped) {
+            seenComma = true;
+            break;
           }
-          String group = pattern.substring(j, k);
-          for (char c : new char[] {',', '}', '\\'}){
-            group = group.replace("\\" + c, String.valueOf(c));
-          }
-          groups.add(group);
-          j = k;
-          if (j < length && pattern.charAt(j) == ',') {
-            j++;
-            if (j < length && pattern.charAt(j) == '}') {
-              groups.add("");
-            }
-          }
+          escaped = pattern.charAt(j) == '\\' && !escaped;
+          j++;
         }
-        if (j >= length || groups.size() < 2) {
+        if (!seenComma && j < length) {
+          result = new StringBuilder(result);
           result.append("\\{");
-        } else {
-          result.append("(");
-          for (int groupNumber = 0; groupNumber < groups.size(); groupNumber++) {
-            String group = groups.get(groupNumber);
-            if (groupNumber > 0) result.append("|");
-            result.append(escapeToRegex(group));
-          }
-          result.append(")");
+          result.append(convertGlobToRegEx(pattern.substring(i, j), true));
+          result.append("\\}");
           i = j + 1;
+        } else if (matchingBraces) {
+          result.append("(?:");
+          braceLevel++;
+        } else {
+          result.append("\\{");
         }
-      } else {
+      } else if (',' == current) {
+        result.append(braceLevel > 0 && !escaped ? "|" : ",");
+      } else if ('}' == current) {
+        if (braceLevel > 0 && !escaped) {
+          result.append(")");
+          braceLevel--;
+        } else {
+          result.append("}");
+        }
+      } else if ('\\' != current) {
         result.append(escapeToRegex(String.valueOf(current)));
+      }
+      if ('\\' == current) {
+        if (escaped) result.append("\\\\");
+        escaped = !escaped;
+      } else {
+        escaped = false;
       }
     }
 
@@ -301,6 +311,13 @@ public class EditorConfig {
       }
     }
     return builder.toString();
+  }
+
+  private static int countAll(Pattern regex, String pattern) {
+    final Matcher matcher = regex.matcher(pattern);
+    int count = 0;
+    while (matcher.find()) count++;
+    return count;
   }
 
   /**
