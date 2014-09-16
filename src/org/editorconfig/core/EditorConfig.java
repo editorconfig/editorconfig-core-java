@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
  * @author Dennis.Ushakov
  */
 public class EditorConfig {
+  private static boolean DEBUG = System.getProperty("editorconfig.debug") != null;
+
   public static String VERSION = "0.11.3-final";
 
   private static final Pattern SECTION_PATTERN = Pattern.compile("\\s*\\[(([^#;]|\\\\#|\\\\;)+)]" +
@@ -207,6 +209,7 @@ public class EditorConfig {
       pattern = "**/" + pattern;
     }
     final String regex = convertGlobToRegEx(pattern, false);
+    if (DEBUG) System.err.println(regex);
     return Pattern.compile(regex).matcher(filePath).matches();
   }
 
@@ -217,6 +220,7 @@ public class EditorConfig {
     int braceLevel = 0;
     boolean matchingBraces = countAll(OPENING_BRACES, pattern) == countAll(CLOSING_BRACES, pattern);
     boolean escaped = false;
+    boolean inBrackets = false;
     while (i < length) {
       char current = pattern.charAt(i);
       i++;
@@ -230,46 +234,30 @@ public class EditorConfig {
       } else if ('?' == current) {
         result.append(".");
       } else if ('[' == current) {
-        int j = i;
-        if (j < length && pattern.charAt(j) == '!') {
-          j++;
-        }
-        if (j < length && pattern.charAt(j) == ']') {
-          j++;
-        }
-        while (j < length && (pattern.charAt(j) != ']' || escaped)) {
-          escaped = pattern.charAt(j) == '\\' && !escaped;
-          j++;
-        }
-        if (j >= length) {
+        boolean seenSlash = findChar('/', ']', pattern, length, i) >= 0;
+        if (seenSlash || escaped) {
           result.append("\\[");
+        } else if (i < length && "!^".indexOf(pattern.charAt(i)) >= 0) {
+          i++;
+          result.append("[^");
         } else {
-          String charClass = pattern.substring(i, j);
-          i = j + 1;
-          if (charClass.charAt(0) == '!') {
-            charClass = '^' + charClass;
-          } else if (charClass.charAt(0) == '^') {
-            charClass = "\\" + charClass;
-          }
-          result.append('[').append(charClass).append("]");
+          result.append("[");
         }
+        inBrackets = true;
+      } else if (']' == current || ('-' == current && inBrackets)) {
+        if (escaped) {
+          result.append("\\");
+        }
+        result.append(current);
+        inBrackets = current != ']' || escaped;
       } else if ('{' == current) {
-        int j = i;
-        boolean seenComma = false;
-        while (j < length && (pattern.charAt(j) != '}' || escaped)) {
-          if (pattern.charAt(j) == ',' && !escaped) {
-            seenComma = true;
-            break;
-          }
-          escaped = pattern.charAt(j) == '\\' && !escaped;
-          j++;
-        }
-        if (!seenComma && j < length) {
+        int j = findChar(',', '}', pattern, length, i);
+        if (j < 0 && -j < length) {
           result = new StringBuilder(result);
           result.append("\\{");
-          result.append(convertGlobToRegEx(pattern.substring(i, j), true));
+          result.append(convertGlobToRegEx(pattern.substring(i, -j), true));
           result.append("\\}");
-          i = j + 1;
+          i = -j + 1;
         } else if (matchingBraces) {
           result.append("(?:");
           braceLevel++;
@@ -297,6 +285,19 @@ public class EditorConfig {
     }
 
     return result.toString();
+  }
+
+  private static int findChar(final char c, final char stopAt, String pattern, int length, int start) {
+    int j = start;
+    boolean escapedChar = false;
+    while (j < length && (pattern.charAt(j) != stopAt || escapedChar)) {
+      if (pattern.charAt(j) == c && !escapedChar) {
+        return j;
+      }
+      escapedChar = pattern.charAt(j) == '\\' && !escapedChar;
+      j++;
+    }
+    return -j;
   }
 
   private static String escapeToRegex(String group) {
