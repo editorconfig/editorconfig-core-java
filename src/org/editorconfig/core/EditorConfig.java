@@ -266,6 +266,18 @@ public class EditorConfig {
         }
       } else if (',' == current) {
         result.append(braceLevel > 0 && !escaped ? "|" : ",");
+      } else if ('/' == current) {
+        if (i < length && pattern.charAt(i) == '*') {
+          if (i + 1 < length && pattern.charAt(i + 1) == '*' &&
+              i + 2 < length && pattern.charAt(i + 2) == '/') {
+            result.append("(/|/.*/)");
+            i += 3;
+          } else {
+            result.append(current);
+          }
+        } else {
+          result.append(current);
+        }
       } else if ('}' == current) {
         if (braceLevel > 0 && !escaped) {
           result.append(")");
@@ -303,7 +315,7 @@ public class EditorConfig {
   private static String escapeToRegex(String group) {
     final StringBuilder builder = new StringBuilder(group.length());
     for (char c : group.toCharArray()) {
-      if (c == ' ' || Character.isLetter(c) || Character.isDigit(c) || c == '_') {
+      if (c == ' ' || Character.isLetter(c) || Character.isDigit(c) || c == '_' || c == '-') {
         builder.append(c);
       } else if (c == '\n') {
         builder.append("\\n");
