@@ -208,12 +208,29 @@ public class EditorConfig {
     } else {
       pattern = "**/" + pattern;
     }
-    final String regex = convertGlobToRegEx(pattern, false);
-    if (DEBUG) System.err.println(regex);
-    return Pattern.compile(regex).matcher(filePath).matches();
+    final ArrayList<int[]> ranges = new ArrayList<int[]>();
+    final String regex = convertGlobToRegEx(pattern, ranges, false);
+    if (DEBUG) {
+      System.err.println(regex);
+      for (int[] range : ranges) {
+        System.err.println("numeric range: {" + range[0] + ".." + range[1] + "}");
+      }
+    }
+    final Matcher matcher = Pattern.compile(regex).matcher(filePath);
+    if (matcher.matches()) {
+      for (int i = 0; i < matcher.groupCount(); i++) {
+        final int[] range = ranges.get(i);
+        final String numberString = matcher.group(i + 1);
+        if (numberString == null || numberString.startsWith("0")) return false;
+        int number = Integer.parseInt(numberString);
+        if (number < range[0] || number > range[1]) return false;
+      }
+      return true;
+    }
+    return false;
   }
 
-  static String convertGlobToRegEx(String pattern, boolean nested) {
+  static String convertGlobToRegEx(String pattern, ArrayList<int[]> ranges, boolean nested) {
     int length = pattern.length();
     StringBuilder result = new StringBuilder(length);
     int i = 0;
@@ -253,10 +270,17 @@ public class EditorConfig {
       } else if ('{' == current) {
         int j = findChar(',', '}', pattern, length, i);
         if (j < 0 && -j < length) {
-          result = new StringBuilder(result);
-          result.append("\\{");
-          result.append(convertGlobToRegEx(pattern.substring(i, -j), true));
-          result.append("\\}");
+          final String choice = pattern.substring(i, -j);
+          final int[] range = getNumericRange(choice);
+          if (range != null) {
+            result.append("(\\d+)");
+            ranges.add(range);
+          } else {
+            result = new StringBuilder(result);
+            result.append("\\{");
+            result.append(convertGlobToRegEx(choice, ranges, true));
+            result.append("\\}");
+          }
           i = -j + 1;
         } else if (matchingBraces) {
           result.append("(?:");
@@ -270,7 +294,7 @@ public class EditorConfig {
         if (i < length && pattern.charAt(i) == '*') {
           if (i + 1 < length && pattern.charAt(i + 1) == '*' &&
               i + 2 < length && pattern.charAt(i + 2) == '/') {
-            result.append("(/|/.*/)");
+            result.append("(?:/|/.*/)");
             i += 3;
           } else {
             result.append(current);
@@ -297,6 +321,17 @@ public class EditorConfig {
     }
 
     return result.toString();
+  }
+
+  private static int[] getNumericRange(String choice) {
+    final int separator = choice.indexOf("..");
+    if (separator < 0 ) return null;
+    try {
+      int start = Integer.parseInt(choice.substring(0, separator));
+      int end = Integer.parseInt(choice.substring(separator + 2));
+      return new int[] {start, end};
+    } catch (NumberFormatException ignored) {}
+    return null;
   }
 
   private static int findChar(final char c, final char stopAt, String pattern, int length, int start) {
