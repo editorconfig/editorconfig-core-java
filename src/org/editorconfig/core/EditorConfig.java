@@ -209,7 +209,7 @@ public class EditorConfig {
       pattern = "**/" + pattern;
     }
     final ArrayList<int[]> ranges = new ArrayList<int[]>();
-    final String regex = convertGlobToRegEx(pattern, ranges, false);
+    final String regex = convertGlobToRegEx(pattern, ranges);
     if (DEBUG) {
       System.err.println(regex);
       for (int[] range : ranges) {
@@ -230,7 +230,7 @@ public class EditorConfig {
     return false;
   }
 
-  static String convertGlobToRegEx(String pattern, ArrayList<int[]> ranges, boolean nested) {
+  static String convertGlobToRegEx(String pattern, ArrayList<int[]> ranges) {
     int length = pattern.length();
     StringBuilder result = new StringBuilder(length);
     int i = 0;
@@ -278,7 +278,7 @@ public class EditorConfig {
           } else {
             result = new StringBuilder(result);
             result.append("\\{");
-            result.append(convertGlobToRegEx(choice, ranges, true));
+            result.append(convertGlobToRegEx(choice, ranges));
             result.append("\\}");
           }
           i = -j + 1;
