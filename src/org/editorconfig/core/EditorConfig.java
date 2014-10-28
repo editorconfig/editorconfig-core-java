@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class EditorConfig {
   private static boolean DEBUG = System.getProperty("editorconfig.debug") != null;
 
-  public static String VERSION = "0.11.3-final";
+  public static String VERSION = "0.12.0-final";
 
   private static final Pattern SECTION_PATTERN = Pattern.compile("\\s*\\[(([^#;]|\\\\#|\\\\;)+)]" +
                                                                  ".*"); // Python match searches from the line start
