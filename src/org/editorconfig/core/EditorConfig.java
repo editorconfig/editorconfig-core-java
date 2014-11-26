@@ -60,6 +60,23 @@ public class EditorConfig {
    *                                                     {@link ParsingException} or {@link VersionException}
    */
   public List<OutPair> getProperties(String filePath) throws EditorConfigException {
+    return getProperties(filePath, Collections.<String>emptySet());
+  }
+
+  /**
+   * Parse editorconfig files corresponding to the file path given by filename, and return the parsing result.
+   *
+   * @param filePath         The full path to be parsed. The path is usually the path of the file which is currently edited
+   *                         by the editor.
+   * @param explicitRootDirs Set set of directories where search should stop even if no .editorconfig file with
+   *                         root=true is found
+   * @return The parsing result stored in a list of {@link EditorConfig.OutPair}.
+   * @throws org.editorconfig.core.ParsingException      If an {@code .editorconfig} file could not be parsed
+   * @throws org.editorconfig.core.VersionException      If version greater than actual is specified in constructor
+   * @throws org.editorconfig.core.EditorConfigException If an EditorConfig exception occurs. Usually one of
+   *                                                     {@link ParsingException} or {@link VersionException}
+   */
+  public List<OutPair> getProperties(String filePath, Set<String> explicitRootDirs) throws EditorConfigException {
     checkAssertions();
     Map<String, String> oldOptions = Collections.emptyMap();
     Map<String, String> options = new LinkedHashMap<String, String>();
@@ -83,6 +100,7 @@ public class EditorConfig {
         options.putAll(oldOptions);
         oldOptions = options;
         options = new LinkedHashMap<String, String>();
+        root |= explicitRootDirs.contains(dir);
         dir = new File(dir).getParent();
       }
     } catch (IOException e) {
