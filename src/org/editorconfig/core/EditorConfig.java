@@ -1,7 +1,18 @@
 package org.editorconfig.core;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,20 +93,22 @@ public class EditorConfig {
     Map<String, String> options = new LinkedHashMap<String, String>();
     try {
       boolean root = false;
-      String dir = new File(filePath).getParent();
+      String dir = new File(filePath).getAbsolutePath();
       while (dir != null && !root) {
-        String configPath = dir + "/" + configFilename;
+        String configPath = dir + File.separator + configFilename;
         if (new File(configPath).exists()) {
           FileInputStream stream = new FileInputStream(configPath);
           InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
           BufferedReader bufferedReader = new BufferedReader(reader);
           try {
-            root = parseFile(bufferedReader, dir + "/", filePath, options);
+            root = parseFile(bufferedReader, dir + File.separator, filePath, options);
           } finally {
             bufferedReader.close();
             reader.close();
             stream.close();
           }
+        } else {
+            throw new FileNotFoundException();
         }
         options.putAll(oldOptions);
         oldOptions = options;
@@ -217,6 +230,7 @@ public class EditorConfig {
   }
 
   static boolean filenameMatches(String configDirname, String pattern, String filePath) {
+    filePath =  filePath.replaceAll("\\\\", "/");
     pattern = pattern.replace(File.separatorChar, '/');
     pattern = pattern.replaceAll("\\\\#", "#");
     pattern = pattern.replaceAll("\\\\;", ";");
