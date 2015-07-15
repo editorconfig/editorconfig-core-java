@@ -11,22 +11,20 @@ editors which allow this file format to be read and used by those editors.  For
 information on the file format and supported text editors, see the
 [EditorConfig website][EditorConfig].
 
-## Build the Library and Generate the Doc
+## How to use EditorConfig Core in Java
 
-First be sure that the submodule is initialized:
+Add the `editorconfig-core` dependency to your `pom.xml` file:
 
-    cd /path/to/editorconfig-core-java
-    git submodule init
-    git submodule update
-
-With [Ant][]:
-
-    ant && ant docs
-
-The built jar file is in the `build` directory and the documentation is in the
-`doc` directory.
-
-## Use as a Library
+```xml
+  ...
+  <dependencies>
+    <dependency>
+      <groupId>org.editorconfig</groupId>
+      <artifactId>editorconfig-core</artifactId>
+      <version><!-- lookup the newest version on http://mvnrepository.com/artifact/org.editorconfig/editorconfig-core --></version>
+    </dependency>
+  </dependencies>
+```
 
 A basic example:
 
@@ -44,11 +42,40 @@ for(int i = 0; i < l.size(); ++i) {
     System.out.println(l.get(i).getKey() + "=" + l.get(i).getVal());
 }
 ```
+There is an [online documentation][] for API details.
 
-A more complex example is in the `example` directory. There is an
-[online documentation][] for API details, or you could run `ant doc` to
-generate html documentation. The generated documentation will locate in `doc`
-directory.
+## Build EditorConfig Core Java librarary
+
+Prerequisistes: Java 7, [Maven][], Git, cmake 2.6+ (optional for tests)
+
+Checkout the code
+
+    git clone https://github.com/editorconfig/editorconfig-core-java.git
+
+Build the library with [Maven][]:
+
+    cd editorconfig-core-java
+    mvn clean install
+
+The built jar file is in the `target` directory.
+
+## Run the testsuite
+
+First make sure that the submodule is initialized:
+
+    cd /path/to/editorconfig-core-java
+    git submodule init
+    git submodule update
+
+Then prepare and run the tests using `cmake`:
+
+    cmake .
+    ctest .
+
+## How to Contribute
+
+Pull requests are welcome on [GitHub](https://github.com/editorconfig/editorconfig-core-java).
+
 
 ## License
 
@@ -57,6 +84,6 @@ LICENSE for details.
 
 Copyright (C) 2012-2013, EditorConfig Team
 
-[Ant]: http://ant.apache.org
+[Maven]: https://maven.apache.org
 [EditorConfig]: http://editorconfig.org
 [online documentation]: http://javadocs.editorconfig.org

@@ -40,3 +40,11 @@ nb-configuration.xml
 
 # OSX
 .DS_Store
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
