@@ -176,8 +176,9 @@ public class EditorConfig {
     boolean root = false;
     boolean inSection = false;
     boolean matchingSection = false;
-    while (bufferedReader.ready()) {
-      String line = bufferedReader.readLine().trim();
+    String line = null;
+    while ((line = bufferedReader.readLine()) != null) {
+      line = line.trim();
 
       if (line.startsWith("\ufeff")) {
         line = line.substring(1);
