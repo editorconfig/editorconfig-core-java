@@ -84,17 +84,16 @@ public class EditorConfig {
       boolean root = false;
       String dir = new File(filePath).getParent();
       while (dir != null && !root) {
-        String configPath = dir + "/" + configFilename;
-        if (new File(configPath).exists()) {
-          FileInputStream stream = new FileInputStream(configPath);
-          InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
-          BufferedReader bufferedReader = new BufferedReader(reader);
+        File configFile = new File(dir, configFilename);
+        if (configFile.exists()) {
+          BufferedReader bufferedReader = null;
           try {
+            bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
             root = parseFile(bufferedReader, dir + "/", filePath, options);
           } finally {
-            bufferedReader.close();
-            reader.close();
-            stream.close();
+            if (bufferedReader != null) {
+                bufferedReader.close();
+            }
           }
         }
         options.putAll(oldOptions);
@@ -177,8 +176,9 @@ public class EditorConfig {
     boolean root = false;
     boolean inSection = false;
     boolean matchingSection = false;
-    while (bufferedReader.ready()) {
-      String line = bufferedReader.readLine().trim();
+    String line = null;
+    while ((line = bufferedReader.readLine()) != null) {
+      line = line.trim();
 
       if (line.startsWith("\ufeff")) {
         line = line.substring(1);

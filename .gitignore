@@ -19,3 +19,32 @@ cmake_install.cmake
 install_manifest.txt
 CTestTestfile.cmake
 Testing/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IDEA
+.idea
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# KDE
+.directory
+
+# OSX
+.DS_Store
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties

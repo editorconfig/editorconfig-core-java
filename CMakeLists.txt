@@ -17,5 +17,5 @@ if(NOT JAVA_FOUND)
 endif()
 
 enable_testing()
-set(EDITORCONFIG_CMD ${Java_JAVA_EXECUTABLE} -jar ${PROJECT_SOURCE_DIR}/lib/editorconfig-core-java.jar)
+set(EDITORCONFIG_CMD ${Java_JAVA_EXECUTABLE} -jar ${PROJECT_SOURCE_DIR}/target/editorconfig-core.jar)
 add_subdirectory(editorconfig-core-test)
