@@ -4,6 +4,9 @@ language: java
 sudo: false
 jdk:
 - openjdk7
+cache:
+  directories:
+  - $HOME/.m2/repository
 install:
 - cmake --version
 - git submodule init
