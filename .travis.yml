@@ -3,7 +3,10 @@ language: java
 # see http://docs.travis-ci.com/user/workers/container-based-infrastructure/
 sudo: false
 jdk:
-- oraclejdk8
+- openjdk7
+cache:
+  directories:
+  - $HOME/.m2/repository
 install:
 - cmake --version
 - git submodule init
