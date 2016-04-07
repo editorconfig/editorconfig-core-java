@@ -222,7 +222,7 @@ public class EditorConfig {
     pattern = pattern.replaceAll("\\\\;", ";");
     int separator = pattern.indexOf("/");
     if (separator >= 0) {
-      pattern = configDirname + (separator == 0 ? pattern.substring(1) : pattern);
+      pattern = configDirname.replace(File.separatorChar, '/') + (separator == 0 ? pattern.substring(1) : pattern);
     } else {
       pattern = "**/" + pattern;
     }
