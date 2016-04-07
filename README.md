@@ -46,7 +46,7 @@ There is an [online documentation][] for API details.
 
 ## Build EditorConfig Core Java librarary
 
-Prerequisistes: Java 7, [Maven][], Git, cmake 2.6+ (optional for tests)
+Prerequisistes: Java 6, [Maven][], Git, cmake 2.6+ (optional for tests)
 
 Checkout the code
 
