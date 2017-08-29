@@ -123,8 +123,8 @@ public class EditorConfig {
   }
 
   private static int compareVersions(String version1, String version2) {
-    String[] version1Components = version1.split("(\\.|-)");
-    String[] version2Components = version2.split("(\\.|-)");
+    String[] version1Components = version1.split("([.-])");
+    String[] version2Components = version2.split("([.-])");
     for (int i = 0; i < 3; i++) {
       String version1Component = version1Components[i];
       String version2Component = version2Components[i];
@@ -177,7 +177,7 @@ public class EditorConfig {
     boolean root = false;
     boolean inSection = false;
     boolean matchingSection = false;
-    String line = null;
+    String line;
     while ((line = bufferedReader.readLine()) != null) {
       line = line.trim();
 
