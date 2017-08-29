@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * EditorConfig handler
@@ -190,7 +191,11 @@ public class EditorConfig {
       Matcher matcher = SECTION_PATTERN.matcher(line);
       if (matcher.matches()) {
         inSection = true;
-        matchingSection = filenameMatches(dirName, matcher.group(HEADER), filePath);
+        try {
+          matchingSection = filenameMatches(dirName, matcher.group(HEADER), filePath);
+        } catch (PatternSyntaxException e) {
+          malformedLines.append(line).append("\n");
+        }
         continue;
       }
       matcher = OPTION_PATTERN.matcher(line);
