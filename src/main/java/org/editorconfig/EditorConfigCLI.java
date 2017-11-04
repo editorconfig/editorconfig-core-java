@@ -20,7 +20,7 @@ public class EditorConfigCLI {
         System.out.println("EditorConfig Java Version " + version);
         System.exit(0);
       }
-      if ("-h".equals(arg) || "--help".equals("arg")) {
+      if ("-h".equals(arg) || "--help".equals(arg)) {
         printUsage(false);
       }
       if ("-b".equals(arg)) {
