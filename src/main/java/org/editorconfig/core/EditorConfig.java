@@ -312,7 +312,14 @@ public class EditorConfig {
           result.append("\\{");
         }
       } else if (',' == current) {
-        result.append(braceLevel > 0 && !escaped ? "|" : ",");
+        if (braceLevel > 0 && !escaped) {
+          result.append("|");
+          while (i < length && pattern.charAt(i) == ' ') {
+            i++;
+          }
+        } else {
+          result.append(",");
+        }
       } else if ('/' == current) {
         if (i < length && pattern.charAt(i) == '*') {
           if (i + 1 < length && pattern.charAt(i + 1) == '*' &&
