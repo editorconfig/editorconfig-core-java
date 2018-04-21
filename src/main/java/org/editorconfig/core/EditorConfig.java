@@ -108,12 +108,12 @@ public class EditorConfig {
     Map<String, String> options = new LinkedHashMap<String, String>();
     try {
       boolean root = false;
-      String dir = new File(filePath).getParent();
+      String dir = provider.getParent(filePath);
       while (dir != null && !root) {
-        File configFile = new File(dir, configFilename);
+        String configFilePath = provider.combinePath(dir, configFilename);
         BufferedReader bufferedReader = null;
         try {
-          InputStream inputStream = provider.openStream(configFile.getPath());
+          InputStream inputStream = provider.openStream(configFilePath);
           if(inputStream != null){
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             root = parseFile(bufferedReader, dir + "/", filePath, options);
@@ -127,7 +127,7 @@ public class EditorConfig {
         oldOptions = options;
         options = new LinkedHashMap<String, String>();
         root |= explicitRootDirs.contains(dir);
-        dir = new File(dir).getParent();
+        dir = provider.getParent(dir);
       }
     } catch (IOException e) {
       throw new EditorConfigException(null, e);

@@ -7,6 +7,16 @@ import java.io.InputStream;
 
 public class FileStreamProvider implements StreamProvider {
   @Override
+  public String getParent(String filePath) {
+    return new File(filePath).getParent();
+  }
+
+  @Override
+  public String combinePath(String dirPath, String filePath) {
+    return new File(dirPath, filePath).getPath();
+  }
+
+  @Override
   public InputStream openStream(String filePath) {
     try{
       if (new File(filePath).exists()){
