@@ -1,5 +1,8 @@
 package org.editorconfig.core;
 
+import org.editorconfig.core.provider.FileStreamProvider;
+import org.editorconfig.core.provider.StreamProvider;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -29,6 +32,7 @@ public class EditorConfig {
 
   private final String configFilename;
   private final String version;
+  private final StreamProvider provider;
 
   /**
    * Creates EditorConfig handler with default configuration filename (.editorconfig) and
@@ -36,6 +40,13 @@ public class EditorConfig {
    */
   public EditorConfig() {
     this(".editorconfig", VERSION);
+  }
+
+  /**
+   * Creates EditorConfig handler with specified StreamProvider
+   */
+  public EditorConfig(StreamProvider provider){
+    this(".editorconfig", VERSION, provider);
   }
 
   /**
@@ -47,6 +58,20 @@ public class EditorConfig {
   public EditorConfig(String configFilename, String version) {
     this.configFilename = configFilename;
     this.version = version;
+    this.provider = new FileStreamProvider();
+  }
+
+  /**
+   * Creates EditorConfig handler with specified configuration filename and version.
+   * Used mostly for debugging/testing.
+   * @param configFilename configuration file name to be searched for instead of .editorconfig
+   * @param version required version
+   * @param provider stream provider
+   */
+  public EditorConfig(String configFilename, String version, StreamProvider provider) {
+    this.configFilename = configFilename;
+    this.version = version;
+    this.provider = provider;
   }
 
   /**
@@ -86,15 +111,16 @@ public class EditorConfig {
       String dir = new File(filePath).getParent();
       while (dir != null && !root) {
         File configFile = new File(dir, configFilename);
-        if (configFile.exists()) {
-          BufferedReader bufferedReader = null;
-          try {
-            bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
+        BufferedReader bufferedReader = null;
+        try {
+          InputStream inputStream = provider.openStream(configFile.getPath());
+          if(inputStream != null){
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             root = parseFile(bufferedReader, dir + "/", filePath, options);
-          } finally {
-            if (bufferedReader != null) {
-                bufferedReader.close();
-            }
+          }
+        } finally {
+          if (bufferedReader != null) {
+              bufferedReader.close();
           }
         }
         options.putAll(oldOptions);
