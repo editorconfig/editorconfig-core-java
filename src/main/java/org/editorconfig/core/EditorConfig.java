@@ -78,19 +78,42 @@ public class EditorConfig {
    *                                                     {@link ParsingException} or {@link VersionException}
    */
   public List<OutPair> getProperties(String filePath, Set<String> explicitRootDirs) throws EditorConfigException {
+    return getProperties(filePath, explicitRootDirs, null);
+  }
+
+
+  /**
+   * Parse editorconfig files corresponding to the file path given by filename, and return the parsing result.
+   *
+   * @param filePath         The full path to be parsed. The path is usually the path of the file which is currently edited
+   *                         by the editor.
+   * @param explicitRootDirs Set set of directories where search should stop even if no .editorconfig file with
+   *                         root=true is found
+   * @param callback         A callback receiving control when a new EditorConfig file parsing starts, a line is
+   *                         parsed in that file or an option is found.
+   * @return The parsing result stored in a list of {@link EditorConfig.OutPair}.
+   * @throws org.editorconfig.core.ParsingException      If an {@code .editorconfig} file could not be parsed
+   * @throws org.editorconfig.core.VersionException      If version greater than actual is specified in constructor
+   * @throws org.editorconfig.core.EditorConfigException If an EditorConfig exception occurs. Usually one of
+   *                                                     {@link ParsingException} or {@link VersionException}
+   * @see ParserCallback
+   */
+  public List<OutPair> getProperties(String filePath, Set<String> explicitRootDirs, ParserCallback callback) throws EditorConfigException {
     checkAssertions();
     Map<String, String> oldOptions = Collections.emptyMap();
     Map<String, String> options = new LinkedHashMap<String, String>();
+    File sourceFile = new File(filePath);
+    if (callback != null && !callback.processFile(sourceFile)) return Collections.emptyList();
     try {
       boolean root = false;
       String dir = new File(filePath).getParent();
-      while (dir != null && !root) {
+      while (dir != null && !root && (callback == null || callback.processDir(new File(dir)))) {
         File configFile = new File(dir, configFilename);
-        if (configFile.exists()) {
+        if (configFile.exists() && (callback == null || callback.processEditorConfig(configFile))) {
           BufferedReader bufferedReader = null;
           try {
             bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
-            root = parseFile(bufferedReader, dir + "/", filePath, options);
+            root = parseFile(bufferedReader, dir + "/", filePath, options, callback);
           } finally {
             if (bufferedReader != null) {
                 bufferedReader.close();
@@ -113,6 +136,7 @@ public class EditorConfig {
     for (Map.Entry<String, String> keyValue : oldOptions.entrySet()) {
       result.add(new OutPair(keyValue.getKey(), keyValue.getValue()));
     }
+    if (callback != null) callback.processingFinished(sourceFile);
     return result;
   }
 
@@ -172,7 +196,11 @@ public class EditorConfig {
     }
   }
 
-  private static boolean parseFile(BufferedReader bufferedReader, String dirName, String filePath, Map<String, String> result) throws IOException, EditorConfigException {
+  private static boolean parseFile(BufferedReader bufferedReader,
+                                   String dirName,
+                                   String filePath,
+                                   Map<String, String> result,
+                                   ParserCallback callback) throws IOException, EditorConfigException {
     final StringBuilder malformedLines = new StringBuilder();
     boolean root = false;
     boolean inSection = false;
@@ -185,8 +213,8 @@ public class EditorConfig {
         line = line.substring(1);
       }
 
-      // comment or blank line?
-      if (line.isEmpty() || line.startsWith("#") || line.startsWith(";")) continue;
+      if ((callback != null && !callback.processLine(line)) || line.isEmpty() || line.startsWith("#") || line.startsWith(";"))
+        continue;
 
       Matcher matcher = SECTION_PATTERN.matcher(line);
       if (matcher.matches()) {
@@ -209,7 +237,9 @@ public class EditorConfig {
           int commentPos = value.indexOf(" ;");
           commentPos = commentPos < 0 ? value.indexOf(" #") : commentPos;
           value = commentPos >= 0 ? value.substring(0, commentPos) : value;
-          result.put(key, value);
+          if (callback == null || callback.processOption(key, value)) {
+            result.put(key, value);
+          }
         }
         continue;
       }
