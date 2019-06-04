@@ -251,7 +251,7 @@ public class EditorConfig {
     return root;
   }
 
-  static boolean filenameMatches(String configDirname, String pattern, String filePath) {
+  public static boolean filenameMatches(String configDirname, String pattern, String filePath) {
     pattern = pattern.replace(File.separatorChar, '/');
     pattern = pattern.replaceAll("\\\\#", "#");
     pattern = pattern.replaceAll("\\\\;", ";");
