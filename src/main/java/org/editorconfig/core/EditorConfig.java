@@ -175,13 +175,6 @@ public class EditorConfig {
       }
     }
 
-    // Set indent_size to "tab" if indent_size is unspecified and
-    // indent_style is set to "tab".
-    if ("tab".equals(options.get("indent_style")) && !options.containsKey("indent_size") &&
-        compareVersions(version, "0.10.0") >= 0) {
-      options.put("indent_size", "tab");
-    }
-
     // Set tab_width to indent_size if indent_size is specified and
     // tab_width is unspecified
     String indent_size = options.get("indent_size");
