@@ -1,17 +1,22 @@
 language: java
-# Enable container-based infrastructure
-# see http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+dist: trusty
 sudo: false
+
 jdk:
-- openjdk7
-- oraclejdk7
+- openjdk8
 - oraclejdk8
+- openjdk11
+
 cache:
   directories:
   - $HOME/.m2/repository
+
 install:
 - cmake --version
 - git submodule init
 - git submodule update
+
 script:
-- mvn -Pcore-test clean install && cmake . && ctest .
+- mvn -Pcore-test clean install
+- cmake .
+- ctest .
