@@ -19,4 +19,4 @@ install:
 script:
 - mvn -Pcore-test clean install
 - cmake .
-- ctest .
+- ctest -E "(max_property_|max_section_name_|escaped_octothorpe_in_property)" .
