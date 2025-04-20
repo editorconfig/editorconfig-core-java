@@ -85,5 +85,5 @@ LICENSE for details.
 Copyright (C) 2012-2013, EditorConfig Team
 
 [Maven]: https://maven.apache.org
-[EditorConfig]: http://editorconfig.org
+[EditorConfig]: https://editorconfig.org
 [online documentation]: http://javadocs.editorconfig.org
